@@ -2,10 +2,11 @@ package com.raiffeisen.processor.service.mapper;
 
 import com.raiffeisen.processor.dto.PaymentDto;
 import com.raiffeisen.processor.entity.Payment;
+import com.raiffeisen.processor.service.Mapper;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PaymentMapper {
+public class PaymentMapper implements Mapper<PaymentDto, Payment> {
     public PaymentDto toDto(final Payment payment) {
         return PaymentDto.builder()
                 .id(payment.getId())
