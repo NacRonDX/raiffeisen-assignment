@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.MimeTypeUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +32,7 @@ import java.util.List;
 public class PaymentsController {
     private final PaymentService paymentService;
 
+    @PreAuthorize("hasRole('ROLE_VIEWER')")
     @GetMapping(produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<PaymentDto>> getPayments(@RequestParam(required = false) final BigDecimal amount,
                                                         @RequestParam(required = false) final String currency,
@@ -47,12 +49,14 @@ public class PaymentsController {
         return ResponseEntity.ok(paymentService.getPayments(filter, pageSpec));
     }
 
+    @PreAuthorize("hasRole('ROLE_EDITOR')")
     @PostMapping(consumes = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<Void> createPayment(@Valid @RequestBody final PaymentDto paymentDto) {
         paymentService.createPayment(paymentDto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @PreAuthorize("hasRole('ROLE_EDITOR')")
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deletePayment(@PathVariable final Long id) {
         paymentService.deletePayment(id);

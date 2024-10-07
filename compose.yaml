@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+    volumes:
+      - .:/app
+    depends_on:
+      - keycloak
+
+  keycloak:
+    image: keycloak/keycloak
+    environment:
+      - KC_BOOTSTRAP_ADMIN_USERNAME=admin
+      - KC_BOOTSTRAP_ADMIN_PASSWORD=password
+      - KC_PROXY=edge
+      - KEYCLOAK_IMPORT=/opt/keycloak/data/import/dev-realm.json
+    volumes:
+      - .:/opt/keycloak/data/import
+    ports:
+      - "8081:8080"
+    command: start-dev --import-realm
+
+volumes:
+  processor_data:
