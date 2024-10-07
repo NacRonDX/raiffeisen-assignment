@@ -27,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static com.raiffeisen.processor.service.util.TestUtils.generatePayment;
@@ -104,11 +105,11 @@ class PaymentServiceImplTest {
     @Test
     void testDeletePaymentWhenItExists() {
         var id = 1L;
-        when(paymentsRepository.existsById(id)).thenReturn(true);
+        when(paymentsRepository.findById(id)).thenReturn(Optional.of(generatePayment()));
 
         paymentService.deletePayment(id);
 
-        verify(paymentsRepository).deleteById(id);
+        verify(paymentsRepository).findById(id);
         assertAll(
                 () -> assertEquals(2, logWatcher.list.size()),
                 () -> assertEquals("Deleting payment with id: 1", logWatcher.list.getFirst().getFormattedMessage()),
@@ -119,11 +120,11 @@ class PaymentServiceImplTest {
     @Test
     void testDeletePaymentWhenItDoesNotExistThrowException() {
         var id = 1L;
-        when(paymentsRepository.existsById(id)).thenReturn(false);
+        when(paymentsRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(DataNotFoundException.class, () -> paymentService.deletePayment(id));
 
-        verify(paymentsRepository).existsById(id);
+        verify(paymentsRepository).findById(id);
         assertAll(
                 () -> assertEquals(2, logWatcher.list.size()),
                 () -> assertEquals("Deleting payment with id: 1", logWatcher.list.getFirst().getFormattedMessage()),

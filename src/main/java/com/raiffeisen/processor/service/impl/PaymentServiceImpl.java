@@ -39,6 +39,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional
     public void createPayment(final PaymentDto paymentDto) {
         log.info("Creating payment: {}", paymentDto);
         var payment = paymentMapper.toEntity(paymentDto);
@@ -51,8 +52,9 @@ public class PaymentServiceImpl implements PaymentService {
     @Transactional
     public void deletePayment(final Long id) {
         log.info("Deleting payment with id: {}", id);
-        if (paymentsRepository.existsById(id)) {
-            paymentsRepository.deleteById(id);
+        var payment = paymentsRepository.findById(id);
+        if (payment.isPresent()) {
+            paymentsRepository.delete(payment.get());
             log.info("Payment with id {} deleted", id);
         } else {
             log.warn("Payment with id {} does not exist", id);
