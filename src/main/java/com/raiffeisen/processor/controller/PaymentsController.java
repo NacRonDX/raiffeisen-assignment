@@ -1,10 +1,13 @@
 package com.raiffeisen.processor.controller;
 
+import com.raiffeisen.processor.constants.SortField;
 import com.raiffeisen.processor.dto.GetPaymentsFilterDto;
+import com.raiffeisen.processor.dto.PageSpecDto;
 import com.raiffeisen.processor.dto.PaymentDto;
 import com.raiffeisen.processor.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,9 +37,14 @@ public class PaymentsController {
                                                         @RequestParam(required = false) final String fromAccount,
                                                         @RequestParam(required = false) final String toAccount,
                                                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final ZonedDateTime fromTimestamp,
-                                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final ZonedDateTime toTimestamp) {
+                                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final ZonedDateTime toTimestamp,
+                                                        @RequestParam(defaultValue = "0") int page,
+                                                        @RequestParam(defaultValue = "5") int sizePerPage,
+                                                        @RequestParam(defaultValue = "ID") SortField sortField,
+                                                        @RequestParam(defaultValue = "DESC") Sort.Direction sortDirection) {
         var filter = new GetPaymentsFilterDto(amount, currency, fromAccount, toAccount, fromTimestamp, toTimestamp);
-        return ResponseEntity.ok(paymentService.getPayments(filter));
+        var pageSpec = new PageSpecDto(page, sizePerPage, sortField, sortDirection);
+        return ResponseEntity.ok(paymentService.getPayments(filter, pageSpec));
     }
 
     @PostMapping(consumes = MimeTypeUtils.APPLICATION_JSON_VALUE)

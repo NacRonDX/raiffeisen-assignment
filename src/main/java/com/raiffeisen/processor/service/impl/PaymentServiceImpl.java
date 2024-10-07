@@ -1,6 +1,7 @@
 package com.raiffeisen.processor.service.impl;
 
 import com.raiffeisen.processor.dto.GetPaymentsFilterDto;
+import com.raiffeisen.processor.dto.PageSpecDto;
 import com.raiffeisen.processor.dto.PaymentDto;
 import com.raiffeisen.processor.exception.DataNotFoundException;
 import com.raiffeisen.processor.repository.PaymentsRepository;
@@ -9,6 +10,7 @@ import com.raiffeisen.processor.service.PaymentService;
 import com.raiffeisen.processor.service.mapper.PaymentMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,10 +25,12 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentMapper paymentMapper;
 
     @Override
-    public List<PaymentDto> getPayments(final GetPaymentsFilterDto filter) {
+    public List<PaymentDto> getPayments(final GetPaymentsFilterDto filter, final PageSpecDto pageSpec) {
         log.info("Getting all payments");
         var specification = PaymentSpecification.getPaymentsByFilter(filter);
-        var payments = paymentsRepository.findAll(specification)
+        var pageRequest = PageRequest.of(pageSpec.getPage(), pageSpec.getSizePerPage(),
+                pageSpec.getSortDirection(), pageSpec.getSortField().getFieldName());
+        var payments = paymentsRepository.findAll(specification, pageRequest)
                 .stream()
                 .map(paymentMapper::toDto)
                 .toList();

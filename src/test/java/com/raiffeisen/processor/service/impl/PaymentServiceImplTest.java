@@ -3,6 +3,9 @@ package com.raiffeisen.processor.service.impl;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
+import com.raiffeisen.processor.constants.SortField;
+import com.raiffeisen.processor.dto.GetPaymentsFilterDto;
+import com.raiffeisen.processor.dto.PageSpecDto;
 import com.raiffeisen.processor.entity.Payment;
 import com.raiffeisen.processor.exception.DataNotFoundException;
 import com.raiffeisen.processor.repository.PaymentsRepository;
@@ -19,9 +22,12 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
-import java.util.List;
+import java.util.stream.Stream;
 
 import static com.raiffeisen.processor.service.util.TestUtils.generatePayment;
 import static com.raiffeisen.processor.service.util.TestUtils.generatePaymentDto;
@@ -41,6 +47,8 @@ class PaymentServiceImplTest {
     private PaymentsRepository paymentsRepository;
     @Spy
     private PaymentMapper paymentMapper;
+    @Mock
+    private Page<Object> page;
 
     @InjectMocks
     private PaymentServiceImpl paymentService;
@@ -57,9 +65,12 @@ class PaymentServiceImplTest {
 
     @Test
     void testGetAllPayments() {
-        when(paymentsRepository.findAll(any(Specification.class))).thenReturn(List.of(generatePayment(), generatePayment()));
+        when(page.stream()).thenReturn(Stream.of(generatePayment(), generatePayment()));
+        when(paymentsRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(page);
+        var filter = new GetPaymentsFilterDto(null, null, null, null, null, null);
+        var pageSpec = new PageSpecDto(0, 2, SortField.ID, Sort.Direction.DESC);
 
-        var payments = paymentService.getPayments(any());
+        var payments = paymentService.getPayments(filter, pageSpec);
 
         verify(paymentMapper, times(2)).toDto(any(Payment.class));
         assertAll(
