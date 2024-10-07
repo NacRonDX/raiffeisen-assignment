@@ -19,6 +19,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.MessageFormatter;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.List;
 
@@ -56,9 +57,9 @@ class PaymentServiceImplTest {
 
     @Test
     void testGetAllPayments() {
-        when(paymentsRepository.findAll()).thenReturn(List.of(generatePayment(), generatePayment()));
+        when(paymentsRepository.findAll(any(Specification.class))).thenReturn(List.of(generatePayment(), generatePayment()));
 
-        var payments = paymentService.getPayments();
+        var payments = paymentService.getPayments(any());
 
         verify(paymentMapper, times(2)).toDto(any(Payment.class));
         assertAll(

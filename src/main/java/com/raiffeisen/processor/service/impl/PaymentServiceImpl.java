@@ -1,8 +1,10 @@
 package com.raiffeisen.processor.service.impl;
 
+import com.raiffeisen.processor.dto.GetPaymentsFilterDto;
 import com.raiffeisen.processor.dto.PaymentDto;
 import com.raiffeisen.processor.exception.DataNotFoundException;
 import com.raiffeisen.processor.repository.PaymentsRepository;
+import com.raiffeisen.processor.repository.specification.PaymentSpecification;
 import com.raiffeisen.processor.service.PaymentService;
 import com.raiffeisen.processor.service.mapper.PaymentMapper;
 import lombok.RequiredArgsConstructor;
@@ -21,9 +23,10 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentMapper paymentMapper;
 
     @Override
-    public List<PaymentDto> getPayments() {
+    public List<PaymentDto> getPayments(final GetPaymentsFilterDto filter) {
         log.info("Getting all payments");
-        var payments = paymentsRepository.findAll()
+        var specification = PaymentSpecification.getPaymentsByFilter(filter);
+        var payments = paymentsRepository.findAll(specification)
                 .stream()
                 .map(paymentMapper::toDto)
                 .toList();
