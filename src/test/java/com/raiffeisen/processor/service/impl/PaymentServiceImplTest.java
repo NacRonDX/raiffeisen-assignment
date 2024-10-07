@@ -14,6 +14,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
@@ -27,6 +29,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -69,6 +73,32 @@ class PaymentServiceImplTest {
         when(page.stream()).thenReturn(Stream.of(generatePayment(), generatePayment()));
         when(paymentsRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(page);
         var filter = new GetPaymentsFilterDto(null, null, null, null, null, null);
+        var pageSpec = new PageSpecDto(0, 2, SortField.ID, Sort.Direction.DESC);
+
+        var payments = paymentService.getPayments(filter, pageSpec);
+
+        verify(paymentMapper, times(2)).toDto(any(Payment.class));
+        assertAll(
+                () -> assertEquals(2, payments.size()),
+                () -> assertEquals(2, logWatcher.list.size()),
+                () -> assertEquals("Getting all payments", logWatcher.list.getFirst().getFormattedMessage()),
+                () -> assertEquals("Found 2 payments", logWatcher.list.getLast().getFormattedMessage())
+        );
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "150.98, USD, 123, 456, 2021-10-01T00:00:00Z, 2021-10-02T00:00:00Z",
+            "0, USD, 123, 456, 2021-10-01T00:00:00Z, 2021-10-02T00:00:00Z",
+            "150.98, null, 123, 456, 2021-10-01T00:00:00Z, 2021-10-02T00:00:00Z",
+            "150.98, USD, null, 456, 2021-10-01T00:00:00Z, 2021-10-02T00:00:00Z",
+            "150.98, USD, 123, null, 2021-10-01T00:00:00Z, 2021-10-02T00:00:00Z",
+            "0, null, null, null, 2021-10-01T00:00:00Z, 2021-10-01T00:00:00Z"
+    })
+    void testGetAllPaymentsFilter(final BigDecimal amount, final String currency, final String fromAccount, final String toAccount, final ZonedDateTime fromTimestamp, final ZonedDateTime toTimestamp) {
+        when(page.stream()).thenReturn(Stream.of(generatePayment(), generatePayment()));
+        when(paymentsRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(page);
+        var filter = new GetPaymentsFilterDto(amount, currency, fromAccount, toAccount, fromTimestamp, toTimestamp);
         var pageSpec = new PageSpecDto(0, 2, SortField.ID, Sort.Direction.DESC);
 
         var payments = paymentService.getPayments(filter, pageSpec);
