@@ -8,7 +8,7 @@ This project is a payment processing application built with Java and Spring Boot
 ### Prerequisites
 - Java 21 or higher
 - Maven 3.13.0 or higher
-- Docker (optional, for running via Docker)
+- Docker
 
 ### Clone the Repository
 ```sh
@@ -39,6 +39,11 @@ mvn clean install
 
 3. The application will start on `http://localhost:8080`.
 
+4. You'll also need the keycloak server running on `http://localhost:8081` to authenticate the user. You can start the keycloak server by running the following command:
+    ```sh
+    docker run keycloak -p 8081:8080 -e KC_BOOTSTRAP_ADMIN_USERNAME=admin -e KC_BOOTSTRAP_ADMIN_PASSWORD=admin -e KC_PROXY=edge -e KEYCLOAK_IMPORT=dev-realm.json start-dev --import-realm
+   ```
+
 ### Via Docker Compose
 1. Build and run the Docker containers:
     ```sh
@@ -54,3 +59,11 @@ mvn clean install
 
 ## Security
 The application uses JWT for authentication. Ensure your JWT issuer URI is correctly configured in the `application-dev.yaml` file.
+
+## Future Improvements
+- Configure CORS.
+- Add a correlation ID for tracking requests.
+- Manage secrets securely.
+- Generate openapi specification for the API.
+- Configure optimistic locking for concurrent updates.
+- Find usages for the payment_audit table.
