@@ -44,7 +44,7 @@ class PaymentDeleteTriggerTest {
 
     @Test
     void testDeletePayment() throws SQLException {
-        paymentDeleteTrigger.fire(connection, new Object[]{1}, new Object[]{});
+        paymentDeleteTrigger.fire(connection, new Object[] { 1 }, new Object[] {});
 
         verify(statement).execute(anyString());
     }
@@ -53,12 +53,11 @@ class PaymentDeleteTriggerTest {
     void testDeletePaymentNotFound() throws SQLException {
         doThrow(new SQLException("Payment not found")).when(statement).execute(anyString());
 
-        paymentDeleteTrigger.fire(connection, new Object[]{1}, new Object[]{});
+        paymentDeleteTrigger.fire(connection, new Object[] { 1 }, new Object[] {});
 
-        assertAll(
-                () -> assertEquals(1, logWatcher.list.size()),
-                () -> assertEquals("Error while inserting payment audit for payment_id: {}, operation: DELETE", logWatcher.list.getFirst().getMessage())
-        );
+        assertAll(() -> assertEquals(1, logWatcher.list.size()),
+                () -> assertEquals("Error while inserting payment audit for payment_id: {}, operation: DELETE",
+                        logWatcher.list.getFirst().getMessage()));
     }
 
     @AfterEach

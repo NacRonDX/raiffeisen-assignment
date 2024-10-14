@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface PaymentService {
     List<PaymentDto> getPayments(GetPaymentsFilterDto filter, PageSpecDto pageSpec);
+
     void createPayment(PaymentDto paymentDto);
+
     void deletePayment(Long id);
 }

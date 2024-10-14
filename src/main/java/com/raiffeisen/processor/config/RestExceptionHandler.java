@@ -19,18 +19,18 @@ import java.util.List;
 public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DataNotFoundException.class)
     public ResponseEntity<Object> handleException(final DataNotFoundException ex, final WebRequest request) {
-        var error = new ErrorResponseDto(ZonedDateTime.now(), List.of(ex.getMessage()), HttpStatus.NOT_FOUND.value(), HttpStatus.NOT_FOUND.getReasonPhrase());
+        var error = new ErrorResponseDto(ZonedDateTime.now(), List.of(ex.getMessage()), HttpStatus.NOT_FOUND.value(),
+                HttpStatus.NOT_FOUND.getReasonPhrase());
         return handleExceptionInternal(ex, error, new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
     @Override
-    protected ResponseEntity<Object> handleMethodArgumentNotValid(final MethodArgumentNotValidException ex, final HttpHeaders headers,
-                                                                  final HttpStatusCode status, final WebRequest request) {
-        var validationErrors = ex.getBindingResult().getFieldErrors()
-                .stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .toList();
-        var error = new ErrorResponseDto(ZonedDateTime.now(), validationErrors, HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.getReasonPhrase());
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(final MethodArgumentNotValidException ex,
+            final HttpHeaders headers, final HttpStatusCode status, final WebRequest request) {
+        var validationErrors = ex.getBindingResult().getFieldErrors().stream()
+                .map(error -> error.getField() + ": " + error.getDefaultMessage()).toList();
+        var error = new ErrorResponseDto(ZonedDateTime.now(), validationErrors, HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.BAD_REQUEST.getReasonPhrase());
         return super.handleExceptionInternal(ex, error, headers, HttpStatus.BAD_REQUEST, request);
     }
 }

@@ -35,15 +35,14 @@ public class PaymentsController {
     @PreAuthorize("hasRole('ROLE_VIEWER')")
     @GetMapping(produces = MimeTypeUtils.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<PaymentDto>> getPayments(@RequestParam(required = false) final BigDecimal amount,
-                                                        @RequestParam(required = false) final String currency,
-                                                        @RequestParam(required = false) final String fromAccount,
-                                                        @RequestParam(required = false) final String toAccount,
-                                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final ZonedDateTime fromTimestamp,
-                                                        @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final ZonedDateTime toTimestamp,
-                                                        @RequestParam(defaultValue = "0") int page,
-                                                        @RequestParam(defaultValue = "5") int sizePerPage,
-                                                        @RequestParam(defaultValue = "ID") SortField sortField,
-                                                        @RequestParam(defaultValue = "DESC") Sort.Direction sortDirection) {
+            @RequestParam(required = false) final String currency,
+            @RequestParam(required = false) final String fromAccount,
+            @RequestParam(required = false) final String toAccount,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final ZonedDateTime fromTimestamp,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) final ZonedDateTime toTimestamp,
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int sizePerPage,
+            @RequestParam(defaultValue = "ID") SortField sortField,
+            @RequestParam(defaultValue = "DESC") Sort.Direction sortDirection) {
         var filter = new GetPaymentsFilterDto(amount, currency, fromAccount, toAccount, fromTimestamp, toTimestamp);
         var pageSpec = new PageSpecDto(page, sizePerPage, sortField, sortDirection);
         return ResponseEntity.ok(paymentService.getPayments(filter, pageSpec));

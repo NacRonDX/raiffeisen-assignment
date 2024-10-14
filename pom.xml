@@ -22,6 +22,8 @@
 
 	<properties>
 		<java.version>21</java.version>
+		<wiremock-standalone.version>3.9.1</wiremock-standalone.version>
+		<formatter-maven-plugin.version>2.24.1</formatter-maven-plugin.version>
 	</properties>
 
 	<dependencies>
@@ -71,7 +73,7 @@
 		<dependency>
 			<groupId>org.wiremock</groupId>
 			<artifactId>wiremock-standalone</artifactId>
-			<version>3.9.1</version>
+			<version>${wiremock-standalone.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
@@ -89,6 +91,25 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>net.revelc.code.formatter</groupId>
+				<artifactId>formatter-maven-plugin</artifactId>
+				<version>${formatter-maven-plugin.version}</version>
+				<configuration>
+					<lineEnding>LF</lineEnding>
+					<encoding>UTF-8</encoding>
+					<compilerSource>21</compilerSource>
+					<compilerCompliance>21</compilerCompliance>
+					<compilerTargetPlatform>21</compilerTargetPlatform>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>format</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

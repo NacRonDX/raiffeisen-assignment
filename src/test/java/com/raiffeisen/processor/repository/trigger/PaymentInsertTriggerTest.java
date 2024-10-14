@@ -43,7 +43,7 @@ class PaymentInsertTriggerTest {
 
     @Test
     void testInsertPayment() throws SQLException {
-        paymentInsertTrigger.fire(connection, new Object[]{}, new Object[]{1});
+        paymentInsertTrigger.fire(connection, new Object[] {}, new Object[] { 1 });
 
         verify(statement).execute(anyString());
     }
@@ -52,12 +52,11 @@ class PaymentInsertTriggerTest {
     void testInsertPaymentNotFound() throws SQLException {
         doThrow(new SQLException("Payment not found")).when(statement).execute(anyString());
 
-        paymentInsertTrigger.fire(connection, new Object[]{}, new Object[]{1});
+        paymentInsertTrigger.fire(connection, new Object[] {}, new Object[] { 1 });
 
-        assertAll(
-                () -> assertEquals(1, logWatcher.list.size()),
-                () -> assertEquals("Error while inserting payment audit for payment_id: {}, operation: INSERT", logWatcher.list.getFirst().getMessage())
-        );
+        assertAll(() -> assertEquals(1, logWatcher.list.size()),
+                () -> assertEquals("Error while inserting payment audit for payment_id: {}, operation: INSERT",
+                        logWatcher.list.getFirst().getMessage()));
     }
 
     @AfterEach

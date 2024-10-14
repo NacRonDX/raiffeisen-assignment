@@ -28,11 +28,9 @@ public class PaymentServiceImpl implements PaymentService {
     public List<PaymentDto> getPayments(final GetPaymentsFilterDto filter, final PageSpecDto pageSpec) {
         log.info("Getting all payments");
         var specification = PaymentSpecification.getPaymentsByFilter(filter);
-        var pageRequest = PageRequest.of(pageSpec.getPage(), pageSpec.getSizePerPage(),
-                pageSpec.getSortDirection(), pageSpec.getSortField().getFieldName());
-        var payments = paymentsRepository.findAll(specification, pageRequest)
-                .stream()
-                .map(paymentMapper::toDto)
+        var pageRequest = PageRequest.of(pageSpec.getPage(), pageSpec.getSizePerPage(), pageSpec.getSortDirection(),
+                pageSpec.getSortField().getFieldName());
+        var payments = paymentsRepository.findAll(specification, pageRequest).stream().map(paymentMapper::toDto)
                 .toList();
         log.info("Found {} payments", payments.size());
         return payments;

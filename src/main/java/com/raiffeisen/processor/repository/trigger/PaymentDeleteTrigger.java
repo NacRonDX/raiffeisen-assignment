@@ -11,7 +11,8 @@ public class PaymentDeleteTrigger implements Trigger {
     @Override
     public void fire(Connection connection, Object[] objects, Object[] objects1) {
         try {
-            connection.createStatement().execute("INSERT INTO payment_audit (payment_id, operation) VALUES (" + objects[0] + ", 'DELETE')");
+            connection.createStatement()
+                    .execute("INSERT INTO payment_audit (payment_id, operation) VALUES (" + objects[0] + ", 'DELETE')");
         } catch (SQLException e) {
             log.error("Error while inserting payment audit for payment_id: {}, operation: DELETE", objects[0], e);
         }

@@ -53,8 +53,7 @@ class PaymentsControllerTest {
 
     @RegisterExtension
     final static WireMockExtension wireMockServer = WireMockExtension.newInstance()
-            .options(wireMockConfig().dynamicPort())
-            .build();
+            .options(wireMockConfig().dynamicPort()).build();
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
@@ -66,10 +65,7 @@ class PaymentsControllerTest {
 
     @BeforeAll
     static void beforeAll() throws JOSEException {
-        RSA_KEY = new RSAKeyGenerator(2048)
-                .keyUse(KeyUse.SIGNATURE)
-                .algorithm(new Algorithm("RS256"))
-                .keyID(KEY_ID)
+        RSA_KEY = new RSAKeyGenerator(2048).keyUse(KeyUse.SIGNATURE).algorithm(new Algorithm("RS256")).keyID(KEY_ID)
                 .generate();
     }
 
@@ -78,9 +74,8 @@ class PaymentsControllerTest {
         var rsaPublicJWK = RSA_KEY.toPublicJWK();
         var jwkResponse = format("{\"keys\": [%s]}", rsaPublicJWK.toJSONString());
 
-        wireMockServer.stubFor(get("/").willReturn(aResponse()
-                .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                .withBody(jwkResponse)));
+        wireMockServer.stubFor(get("/").willReturn(
+                aResponse().withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE).withBody(jwkResponse)));
     }
 
     @Test
@@ -88,10 +83,8 @@ class PaymentsControllerTest {
         when(paymentService.getPayments(any(), any())).thenReturn(List.of());
 
         mockMvc.perform(MockMvcRequestBuilders.get("/payments").header("Authorization", "Bearer " + getSignedJwt()))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$").isEmpty());
+                .andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$").isArray()).andExpect(jsonPath("$").isEmpty());
     }
 
     @Test
@@ -99,8 +92,8 @@ class PaymentsControllerTest {
         doNothing().when(paymentService).createPayment(any());
 
         mockMvc.perform(MockMvcRequestBuilders.post("/payments").header("Authorization", "Bearer " + getSignedJwt())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("{\"amount\":100.0,\"currency\":\"USD\",\"fromAccount\":\"12345678901234567890\",\"toAccount\":\"09876543210987654321\"}"))
+                .contentType(MediaType.APPLICATION_JSON).content(
+                        "{\"amount\":100.0,\"currency\":\"USD\",\"fromAccount\":\"12345678901234567890\",\"toAccount\":\"09876543210987654321\"}"))
                 .andExpect(status().isCreated());
     }
 
@@ -109,24 +102,20 @@ class PaymentsControllerTest {
             "{\"amount\":100.0,\"currency\":\"USD\",\"fromAccount\":\"1234567890123456\",\"toAccount\":\"09876543210987654321\"}",
             "{\"amount\":0.0,\"currency\":\"USD\",\"fromAccount\":\"12345678901234567890\",\"toAccount\":\"09876543210987654321\"}",
             "{\"amount\":-100.0,\"currency\":\"USD\",\"fromAccount\":\"12345678901234567890\",\"toAccount\":\"09876543210987654321\"}",
-            "{\"amount\":100.0,\"currency\":\"USDS\",\"fromAccount\":\"12345678901234567890\",\"toAccount\":\"09876543210987654321\"}"
-    })
+            "{\"amount\":100.0,\"currency\":\"USDS\",\"fromAccount\":\"12345678901234567890\",\"toAccount\":\"09876543210987654321\"}" })
     void testCreatePaymentWithIncompletePayloads(String payload) throws Exception {
         doNothing().when(paymentService).createPayment(any());
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/payments")
-                        .header("Authorization", "Bearer " + getSignedJwt())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(payload))
-                .andExpect(status().isBadRequest());
+        mockMvc.perform(MockMvcRequestBuilders.post("/payments").header("Authorization", "Bearer " + getSignedJwt())
+                .contentType(MediaType.APPLICATION_JSON).content(payload)).andExpect(status().isBadRequest());
     }
 
     @Test
     void testDeletePayment() throws Exception {
         doNothing().when(paymentService).deletePayment(any());
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/payments/{id}", 1L)
-                .header("Authorization", "Bearer " + getSignedJwt()))
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/payments/{id}", 1L).header("Authorization", "Bearer " + getSignedJwt()))
                 .andExpect(status().isOk());
     }
 
@@ -134,18 +123,16 @@ class PaymentsControllerTest {
     void testDeletePaymentNotFound() throws Exception {
         doThrow(new DataNotFoundException("Payment not found")).when(paymentService).deletePayment(any());
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/payments/{id}", 1L)
-                .header("Authorization", "Bearer " + getSignedJwt()))
+        mockMvc.perform(
+                MockMvcRequestBuilders.delete("/payments/{id}", 1L).header("Authorization", "Bearer " + getSignedJwt()))
                 .andExpect(status().isNotFound());
     }
 
     private String getSignedJwt() throws Exception {
         var signer = new RSASSASigner(RSA_KEY);
-        var claimsSet = new JWTClaimsSet.Builder()
-                .expirationTime(new Date(new Date().getTime() + 60 * 1000))
-                .build();
-        var signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256)
-                .keyID(RSA_KEY.getKeyID()).build(), claimsSet);
+        var claimsSet = new JWTClaimsSet.Builder().expirationTime(new Date(new Date().getTime() + 60 * 1000)).build();
+        var signedJWT = new SignedJWT(new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(RSA_KEY.getKeyID()).build(),
+                claimsSet);
         signedJWT.sign(signer);
         return signedJWT.serialize();
     }

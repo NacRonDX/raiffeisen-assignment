@@ -78,24 +78,20 @@ class PaymentServiceImplTest {
         var payments = paymentService.getPayments(filter, pageSpec);
 
         verify(paymentMapper, times(2)).toDto(any(Payment.class));
-        assertAll(
-                () -> assertEquals(2, payments.size()),
-                () -> assertEquals(2, logWatcher.list.size()),
+        assertAll(() -> assertEquals(2, payments.size()), () -> assertEquals(2, logWatcher.list.size()),
                 () -> assertEquals("Getting all payments", logWatcher.list.getFirst().getFormattedMessage()),
-                () -> assertEquals("Found 2 payments", logWatcher.list.getLast().getFormattedMessage())
-        );
+                () -> assertEquals("Found 2 payments", logWatcher.list.getLast().getFormattedMessage()));
     }
 
     @ParameterizedTest
-    @CsvSource({
-            "150.98, USD, 123, 456, 2021-10-01T00:00:00Z, 2021-10-02T00:00:00Z",
+    @CsvSource({ "150.98, USD, 123, 456, 2021-10-01T00:00:00Z, 2021-10-02T00:00:00Z",
             "0, USD, 123, 456, 2021-10-01T00:00:00Z, 2021-10-02T00:00:00Z",
             "150.98, null, 123, 456, 2021-10-01T00:00:00Z, 2021-10-02T00:00:00Z",
             "150.98, USD, null, 456, 2021-10-01T00:00:00Z, 2021-10-02T00:00:00Z",
             "150.98, USD, 123, null, 2021-10-01T00:00:00Z, 2021-10-02T00:00:00Z",
-            "0, null, null, null, 2021-10-01T00:00:00Z, 2021-10-01T00:00:00Z"
-    })
-    void testGetAllPaymentsFilter(final BigDecimal amount, final String currency, final String fromAccount, final String toAccount, final ZonedDateTime fromTimestamp, final ZonedDateTime toTimestamp) {
+            "0, null, null, null, 2021-10-01T00:00:00Z, 2021-10-01T00:00:00Z" })
+    void testGetAllPaymentsFilter(final BigDecimal amount, final String currency, final String fromAccount,
+            final String toAccount, final ZonedDateTime fromTimestamp, final ZonedDateTime toTimestamp) {
         when(page.stream()).thenReturn(Stream.of(generatePayment(), generatePayment()));
         when(paymentsRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(page);
         var filter = new GetPaymentsFilterDto(amount, currency, fromAccount, toAccount, fromTimestamp, toTimestamp);
@@ -104,12 +100,9 @@ class PaymentServiceImplTest {
         var payments = paymentService.getPayments(filter, pageSpec);
 
         verify(paymentMapper, times(2)).toDto(any(Payment.class));
-        assertAll(
-                () -> assertEquals(2, payments.size()),
-                () -> assertEquals(2, logWatcher.list.size()),
+        assertAll(() -> assertEquals(2, payments.size()), () -> assertEquals(2, logWatcher.list.size()),
                 () -> assertEquals("Getting all payments", logWatcher.list.getFirst().getFormattedMessage()),
-                () -> assertEquals("Found 2 payments", logWatcher.list.getLast().getFormattedMessage())
-        );
+                () -> assertEquals("Found 2 payments", logWatcher.list.getLast().getFormattedMessage()));
     }
 
     @Test
@@ -121,15 +114,12 @@ class PaymentServiceImplTest {
         verify(paymentMapper).toEntity(payment);
         verify(paymentsRepository).save(paymentEntityCaptor.capture());
         var timestamp = paymentEntityCaptor.getValue().getTimestamp();
-        assertAll(
-                () -> assertEquals(2, logWatcher.list.size()),
-                () -> assertEquals("Creating payment: PaymentDto(id=1, amount=150.98, currency=USD, fromAccount=123, toAccount=456, timestamp=null)",
-                        logWatcher.list.getFirst().getFormattedMessage()),
-                () -> assertEquals(
-                        MessageFormatter.format("Payment created: Payment(id=1, amount=150.98, currency=USD, fromAccount=123, toAccount=456, timestamp={})",
-                                timestamp).getMessage(),
-                        logWatcher.list.getLast().getFormattedMessage())
-        );
+        assertAll(() -> assertEquals(2, logWatcher.list.size()), () -> assertEquals(
+                "Creating payment: PaymentDto(id=1, amount=150.98, currency=USD, fromAccount=123, toAccount=456, timestamp=null)",
+                logWatcher.list.getFirst().getFormattedMessage()),
+                () -> assertEquals(MessageFormatter.format(
+                        "Payment created: Payment(id=1, amount=150.98, currency=USD, fromAccount=123, toAccount=456, timestamp={})",
+                        timestamp).getMessage(), logWatcher.list.getLast().getFormattedMessage()));
     }
 
     @Test
@@ -140,11 +130,9 @@ class PaymentServiceImplTest {
         paymentService.deletePayment(id);
 
         verify(paymentsRepository).findById(id);
-        assertAll(
-                () -> assertEquals(2, logWatcher.list.size()),
+        assertAll(() -> assertEquals(2, logWatcher.list.size()),
                 () -> assertEquals("Deleting payment with id: 1", logWatcher.list.getFirst().getFormattedMessage()),
-                () -> assertEquals("Payment with id 1 deleted", logWatcher.list.getLast().getFormattedMessage())
-        );
+                () -> assertEquals("Payment with id 1 deleted", logWatcher.list.getLast().getFormattedMessage()));
     }
 
     @Test
@@ -155,11 +143,10 @@ class PaymentServiceImplTest {
         assertThrows(DataNotFoundException.class, () -> paymentService.deletePayment(id));
 
         verify(paymentsRepository).findById(id);
-        assertAll(
-                () -> assertEquals(2, logWatcher.list.size()),
+        assertAll(() -> assertEquals(2, logWatcher.list.size()),
                 () -> assertEquals("Deleting payment with id: 1", logWatcher.list.getFirst().getFormattedMessage()),
-                () -> assertEquals("Payment with id 1 does not exist", logWatcher.list.getLast().getFormattedMessage())
-        );
+                () -> assertEquals("Payment with id 1 does not exist",
+                        logWatcher.list.getLast().getFormattedMessage()));
     }
 
     @AfterEach

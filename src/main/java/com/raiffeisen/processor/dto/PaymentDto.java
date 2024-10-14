@@ -25,7 +25,7 @@ public class PaymentDto {
     @NotEmpty(message = "Currency cannot be empty")
     @Pattern(regexp = "^[A-Z]{3}$", message = "Currency value does not match the pattern")
     private String currency;
-    //placeholder for account number (IBAN)
+    // placeholder for account number (IBAN)
     @Pattern(regexp = "^\\d{20}$", message = "Account number does not match the pattern")
     @NotEmpty(message = "Account number cannot be empty")
     private String fromAccount;
